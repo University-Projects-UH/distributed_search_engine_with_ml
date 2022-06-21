@@ -1,9 +1,9 @@
 import math
 import functools
 
-class DocVector: 
-    def __init__(self, vector: dict = {}):
-        self.vector = vector
+class Vector: 
+    def __init__(self):
+        self.vector = {} 
 
 
     def values(self):
@@ -15,7 +15,7 @@ class DocVector:
 
     
     def __add__(self, other):
-        new_vector = DocVector()
+        new_vector = Vector()
         
         for term in self.vector:
             try:
@@ -34,7 +34,7 @@ class DocVector:
     
     # scalar multiplication
     def __mul__(self, value):
-        new_vector = DocVector()
+        new_vector = Vector()
         for term in self.vector:
             new_vector[term] = self.vector[term] * value
 

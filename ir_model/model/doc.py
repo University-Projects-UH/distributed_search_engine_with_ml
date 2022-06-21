@@ -1,5 +1,5 @@
 from .text_utils import TextPreprocessingTools
-from .doc_vector import DocVector
+from .vector import Vector
 
 A = 0.4
 
@@ -23,7 +23,7 @@ class Doc:
 
     
     def build_freq(self):
-        self.freq = DocVector()
+        self.freq = Vector()
         for term in self.terms:
             try:
                 self.freq[term] += 1
@@ -32,7 +32,7 @@ class Doc:
 
     
     def calculate_tfi(self):
-        self.tfi = DocVector()
+        self.tfi = Vector()
         max_freq = max(self.freq.values())
 
         for term in self.freq:
@@ -40,7 +40,7 @@ class Doc:
     
     
     def calculate_wi(self, idf, is_query = False):
-        self.wi = DocVector()
+        self.wi = Vector()
 
         for term in self.tfi:
             if(idf.__contains__(term) == False):

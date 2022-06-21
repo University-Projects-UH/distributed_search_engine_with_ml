@@ -6,9 +6,3 @@ docs-lisa
 news-group
 npl
 """
-
-def init():
-    dc = DocsCollection("docs-lisa")
-    print(dc[:10])
-
-init()
