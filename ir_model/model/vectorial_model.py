@@ -4,7 +4,7 @@ import math
 
 
 class VectorialModel:
-    RELEVANT_PERCENTAGE = 0.0
+    RELEVANT_PERCENTAGE = 0.15
     EPS = 1e-6
     
     def __init__(self, docs_text: 'list[str]'):
