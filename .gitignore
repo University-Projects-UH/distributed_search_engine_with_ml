@@ -5,3 +5,5 @@ __pycache__
 docs
 
 testing.py
+
+glove6B/
