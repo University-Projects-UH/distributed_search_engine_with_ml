@@ -2,14 +2,14 @@ import numpy as np
 from scipy import spatial
 from sklearn.neighbors import KDTree
 
-VECTOR_DIMENSION = 50
+VECTOR_DIMENSION = 100
 
 class WordEmbeddings:
-    def __init__(self):
+    def __init__(self, root_path = "."):
         self.embed_dict = {}
         self.vector_dimension = VECTOR_DIMENSION
 
-        with open(f"./glove6B/glove.6B.{VECTOR_DIMENSION}d.txt", 'r') as f:
+        with open(f"{root_path}/glove6B/glove.6B.{VECTOR_DIMENSION}d.txt", 'r') as f:
             for line in f:
                 values = line.split()
                 word = values[0]
@@ -37,5 +37,5 @@ class WordEmbeddings:
         except:
             return []
 
-        _, nearests = self.kd_tree.query([embed], k = count)
-        return [self.keys[nearest] for nearest in nearests[0]]
+        _, nearests = self.kd_tree.query([embed], k = count + 1)
+        return [self.keys[nearest] for nearest in nearests[0][:1]]

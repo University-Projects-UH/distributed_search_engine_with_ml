@@ -87,7 +87,7 @@ class TextPreprocessingTools:
         text = self.remove_punctuations(text)
         text = self.remove_words_with_digits(text)
         text = self.remove_stopwords(text)
-        # text = self.stem_words(text)
+        #text = self.stem_words(text)
         text = self.lemmtize_words(text)
         return " ".join([word for word in text.split(" ") if word != ''])
 

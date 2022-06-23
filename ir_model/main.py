@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from model import VectorialModel
 from file_tools import DocsCollection
 
-dc = DocsCollection("npl")
+dc = DocsCollection("docs-lisa")
 vm = VectorialModel(dc.docs)
 
 app = FastAPI()
