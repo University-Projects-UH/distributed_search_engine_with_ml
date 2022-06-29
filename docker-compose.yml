@@ -1,0 +1,62 @@
+version: "3.9"
+
+# TO-DO erase volumes
+#docker run -it -v /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed distributed sh
+
+services:
+  client:
+    image: distributed
+    container_name: client1
+    volumes:
+      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
+    command: python3 distributed/client.py
+    # links:
+    #   - server1
+    #   - server2
+    networks:
+      dis:
+        ipv4_address: 10.5.0.2
+
+  # client2:
+  #   image: distributed
+  #   container_name: client2
+  #   volumes:
+  #     - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
+  #   command: python3 distributed/client.py
+  #   # links:
+  #   #   - server1
+  #   #   - server2
+  #   networks:
+  #     dis:
+  #       ipv4_address: 10.5.0.3
+
+  server1:
+    image: distributed
+    container_name: server1
+    volumes:
+      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
+    command: python3 distributed/server.py --ip 10.5.0.11
+    networks:
+      dis:
+        ipv4_address: 10.5.0.11
+
+  server2:
+    image: distributed
+    container_name: server2
+    volumes:
+      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
+    command: python3 distributed/server.py --ip 10.5.0.12
+    networks:
+      dis:
+        ipv4_address: 10.5.0.12
+
+
+networks:
+  dis:
+    name: dis
+    driver: bridge
+    enable_ipv6: false
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.5.0.0/16
