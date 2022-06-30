@@ -1,48 +1,57 @@
 import time
-import signal
 import zmq
+import settings
+from utils.ip import give_ip
 from udplib import UDP
 
-print("something")
+class Client:
 
-PING_PORT_NUMBER = 2525
-PING_MSG_SIZE    = 1
-PING_INTERVAL    = 1  # Once per second
+    def __init__(self):
+        # Server actually listens
+        self.active_servers = {}
+        self.address = give_ip()
 
-def main():
+    def start(self):
+        udp = UDP(settings.PING_PORT_NUMBER)
 
-    udp = UDP(PING_PORT_NUMBER)
+        poller = zmq.Poller()
+        poller.register(udp.handle, zmq.POLLIN)
 
-    poller = zmq.Poller()
-    poller.register(udp.handle, zmq.POLLIN)
+        # Send first ping right away
+        ping_at = time.time()
 
-    # Send first ping right away
-    ping_at = time.time()
+        while True:
+            timeout = ping_at - time.time()
+            if timeout < 0:
+                timeout = 0
 
-    while True:
-        timeout = ping_at - time.time()
-        if timeout < 0:
-            timeout = 0
-        try:
             events = dict(poller.poll(1000* timeout))
-        except KeyboardInterrupt or signal.SIGTERM:
-            print("interrupted")
-            break
 
-        # Someone answered our ping
-        if udp.handle.fileno() in events:
-            resp, addrinfo = udp.recv(PING_MSG_SIZE)
-            if addrinfo[0] != udp.address:
-                if(resp == 's'):
-                    print("Found server %s:%d" % addrinfo)
-                else:
-                    print("Found peer %s:%d" % addrinfo)
+            # Someone answered our ping
+            if udp.handle.fileno() in events:
+                resp, addrinfo = udp.recv(settings.PING_MSG_SIZE)
+                if addrinfo[0] != self.address:
+                    peer_type = 'peer'
+                    if(resp == 's'):
+                        peer_type = 'server'
+                        self.active_servers[addrinfo[0]] = time.time()
 
-        if time.time() >= ping_at:
-            # Broadcast our beacon
-            print ("Pinging peers...")
-            udp.send(b'!')
-            ping_at = time.time() + PING_INTERVAL
+                    if(settings.DEBUG_MODE):
+                        print("Found %s %s:%d" % (peer_type, addrinfo[0], addrinfo[1]))
 
-if __name__ == '__main__':
-    main()
+            if time.time() >= ping_at:
+                # Broadcast our beacon
+                if(settings.DEBUG_MODE):
+                    print ("Pinging peers...")
+                udp.send(b'!')
+                ping_at = time.time() + settings.PING_INTERVAL
+                self.check_servers()
+
+    def check_servers(self):
+        list_servers = []
+        for server,last_time in self.active_servers.items():
+            if(time.time() - last_time > settings.PEER_EXPIRY):
+                list_servers.append(server)
+
+        for server in list_servers:
+            self.active_servers.remove(server)
