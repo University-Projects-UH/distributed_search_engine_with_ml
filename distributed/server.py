@@ -1,4 +1,5 @@
 import signal
+from sys import flags
 import zmq
 
 import settings
@@ -36,6 +37,8 @@ class Server:
                 udp.handle.sendto(b's',address)
             # client-server communication
             elif events.get(input) == zmq.POLLIN:
+                recive = input.recv_multipart()
+                input.send(b'', flags = zmq.SNDMORE)
                 input.send(b'OK')
                 if(settings.DEBUG_MODE):
-                    print("Recieved message by port: %d", settings.COM_PORT_NUMBER)
+                    print("Recieved message: \"%s\" by port: %d" % (recive, settings.CLI_SERV_PORT_NUMBER) )
