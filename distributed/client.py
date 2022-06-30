@@ -2,7 +2,7 @@ import time
 import zmq
 import settings
 from utils.ip import give_ip
-from udplib import UDP
+from utils.udplib import UDP
 
 class Client:
 
