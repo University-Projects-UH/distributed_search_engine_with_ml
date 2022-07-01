@@ -1,9 +1,7 @@
-from audioop import add
 import time
-from typing import List
-from unittest import result
 import zmq
 from threading import Thread
+from typing import List
 
 import settings
 from utils.ip import give_ip
@@ -17,7 +15,7 @@ class Client:
         self.address = give_ip()
 
         self.ctx = None
-        self.request = None
+        # self.request = None
         
     def start(self):
         # ping socket
@@ -26,8 +24,6 @@ class Client:
         # connect to servers
         self.ctx = zmq.Context()
         
-        self.request = self.ctx.socket(zmq.DEALER)
-
         poller = zmq.Poller()
         poller.register(udp.handle, zmq.POLLIN)
 
@@ -41,6 +37,11 @@ class Client:
 
             events = dict(poller.poll(1000* timeout))
 
+            # recive a query from standard input
+            query = input()
+            if query != '':
+                self.send_request(query)
+
             # Someone answered our ping
             if udp.handle.fileno() in events:
                 resp, addrinfo = udp.recv(settings.PING_MSG_SIZE)
@@ -49,16 +50,14 @@ class Client:
                         print("Found server %s:%d" % addrinfo)
 
                     self.active_servers[addrinfo[0]] = time.time()
-                    self.request.connect("tcp://%s:%d" % (addrinfo[0], settings.CLI_SERV_PORT_NUMBER))
 
+            # Is time to send broadcast ping
             if time.time() >= ping_at:
                 # Broadcast our beacon
                 if(settings.DEBUG_MODE):
                     print ("Pinging peers...")
                 udp.send(b'!')
                 ping_at = time.time() + settings.PING_INTERVAL
-
-                self.send_request()
 
     def check_servers(self):
         list_servers = []
@@ -127,8 +126,6 @@ class Client:
 
         # convert to buffer format and send query
         socket.send(query.encode('ascii'))
-
-        # time.sleep(1)
 
         resp = socket.recv()
 
