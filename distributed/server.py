@@ -2,14 +2,34 @@ import signal
 from sys import flags
 import zmq
 
-import settings
-from utils.udplib import UDP
-from utils.ip import give_ip
+import distributed.settings as settings
+from distributed.utils.udplib import UDP
+from distributed.utils.ip import give_ip
+
+from ir_model.model.vectorial_model import VectorialModel
+from ir_model.file_tools import DocsCollection
 
 class Server:
 
-    def __init__(self):
+    def __init__(self, document_set : str):
+        self.dc = DocsCollection(document_set)
+        self.vm = VectorialModel(self.dc.docs)
         self.address = give_ip()
+
+    def query_docs(self, value: str = ""):
+        documents = self.vm.query(value)
+        return self.prepare_output(documents)
+
+    def prepare_output(self, documents):
+        body = []
+        for doc in documents:
+            body.append({
+                "ranking": doc[0],
+                "text": doc[1].text[:min(len(doc[1].text), 400)] + ("(...)" if len(doc[1].text) > 400 else ""),
+                "id": doc[2]
+
+            })
+        return body
 
     def start(self):
         ctx = zmq.Context()
@@ -38,7 +58,12 @@ class Server:
             # client-server communication
             elif events.get(input) == zmq.POLLIN:
                 recive = input.recv_multipart()
-                input.send(b'', flags = zmq.SNDMORE)
-                input.send(b'OK')
+
+                docs = self.query_docs(recive)
+
+                input.send_pyobj(docs)
+
+                #input.send(b'', flags = zmq.SNDMORE)
+                #input.send(b'OK')
                 if(settings.DEBUG_MODE):
                     print("Recieved message: \"%s\" by port: %d" % (recive, settings.CLI_SERV_PORT_NUMBER) )

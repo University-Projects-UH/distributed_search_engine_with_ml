@@ -1,6 +1,6 @@
-from server import Server
+from distributed.server import Server
 
-server = Server()
+server = Server('docs-lisa')
 
 try:
     server.start()

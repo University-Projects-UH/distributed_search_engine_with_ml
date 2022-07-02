@@ -2,7 +2,7 @@ from scipy import spatial
 from .doc import Doc
 from .vector import Vector
 import math
-from .word_embeddings import WordEmbeddings
+#from .word_embeddings import WordEmbeddings
 import numpy as np
 
 
@@ -13,7 +13,7 @@ class VectorialModel:
     def __init__(self, docs_text: 'list[str]'):
         self.term_universe = Vector()
         self.docs = []
-        self.word_embeddings = WordEmbeddings("./model/word_embeddings")
+        #self.word_embeddings = WordEmbeddings("./model/word_embeddings")
         for text in docs_text:
             doc = Doc(text)
             for term in doc.freq:
@@ -118,7 +118,7 @@ class VectorialModel:
         
         query_doc = Doc(text)
         print(query_doc.terms)
-        query_doc.add_terms(self.get_query_expansion(query_doc))
+        #query_doc.add_terms(self.get_query_expansion(query_doc))
         query_doc.calculate_wi(self.idf)
         print(query_doc.terms)
         

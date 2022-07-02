@@ -4,9 +4,9 @@ import zmq
 from threading import Thread
 from typing import List
 
-import settings
-from utils.ip import give_ip
-from utils.udplib import UDP
+import distributed.settings as settings
+from distributed.utils.ip import give_ip
+from distributed.utils.udplib import UDP
 
 class Client:
 
@@ -125,7 +125,7 @@ class Client:
         # convert to buffer format and send query
         socket.send(query.encode('ascii'))
 
-        resp = socket.recv()
+        resp = socket.recv_pyobj()
 
         if(settings.DEBUG_MODE):
             print("Received response from server: %s" % server)

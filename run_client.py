@@ -3,8 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from threading import Thread
 
 import uvicorn
-from client import Client
-import settings
+from distributed.client import Client
+import distributed.settings as settings
 
 app_client = FastAPI()
 
