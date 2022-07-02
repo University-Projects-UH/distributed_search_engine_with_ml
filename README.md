@@ -5,6 +5,16 @@
 - Frank Abel Blanco Gómez C412
 - Karel Díaz Vergara C412
 
+
+## Instalación
+``` bash
+$ git clone https://github.com/University-Projects-UH/distributed_search_engine_with_ml
+$ cd ./distributed_search_engine_with_ml
+$ python3 -m virtualenv env
+$ source env/bin/activate
+$ pip3 install < requirements.txt
+```
+
 ## Resumen
 Los buscadores son programas o aplicaciones que colectan información que, según sea el caso, puede ser de manera local, en la red o en internet. Una vez colectada esta información es procesada y almacenada inteligentemente dentro de una base de datos a la cual puede acceder el buscador. A partir de esta base de datos entonces, desde el buscador y utilizando unos términos de búsqueda, se pueden recuperar los documentos que contengan información relevante y relacionada con lo que se busca. Existen buscadores para acceder a información en Internet o de manera local.  
 
