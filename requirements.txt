@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 anyio==3.6.1
 asgiref==3.5.2
 certifi==2022.6.15
@@ -30,3 +31,7 @@ uvicorn==0.17.6
 uvloop==0.16.0
 watchgod==0.8.2
 websockets==10.3
+=======
+pyzmq==23.2.0
+zmq==0.0.0
+>>>>>>> distributed
