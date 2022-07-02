@@ -1,1 +1,0 @@
-from .ir_model import DocsCollection, VectorialModel

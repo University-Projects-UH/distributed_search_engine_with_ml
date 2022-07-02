@@ -3,6 +3,7 @@
 .gitignore
 __pycache__
 distributed/.directory
+.directory
 docs
 
 testing.py

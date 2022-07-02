@@ -1,15 +1,17 @@
 version: "3.9"
 
 # TO-DO erase volumes
-#docker run -it --network dis -v /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed distributed sh
+# docker run -it --network dis -v /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed distributed sh
+# docker build -t distributed .
+
 
 services:
   client:
     image: distributed
     container_name: client1
     volumes:
-      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
-    command: python3 distributed/run_client.py
+      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
+    command: python3 run_client.py
     # links:
     #   - server1
     #   - server2
@@ -34,8 +36,8 @@ services:
     image: distributed
     container_name: server1
     volumes:
-      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
-    command: python3 distributed/run_server.py
+      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
+    command: python3 run_server.py
     networks:
       dis:
         ipv4_address: 10.5.0.11
@@ -44,8 +46,8 @@ services:
     image: distributed
     container_name: server2
     volumes:
-      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
-    command: python3 distributed/run_server.py
+      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
+    command: python3 run_server.py
     networks:
       dis:
         ipv4_address: 10.5.0.12
