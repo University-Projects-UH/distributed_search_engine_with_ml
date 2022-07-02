@@ -1,3 +1,4 @@
+from hashlib import new
 import time
 import zmq
 from threading import Thread
@@ -37,11 +38,6 @@ class Client:
 
             events = dict(poller.poll(1000* timeout))
 
-            # recive a query from standard input
-            query = input()
-            if query != '':
-                self.send_request(query)
-
             # Someone answered our ping
             if udp.handle.fileno() in events:
                 resp, addrinfo = udp.recv(settings.PING_MSG_SIZE)
@@ -69,7 +65,7 @@ class Client:
             self.active_servers.pop(server)
 
     def send_request(self, query = 'CUBA'):
-        # self.check_servers()
+        self.check_servers()
 
         count_servers = len(self.active_servers)
 
@@ -100,7 +96,9 @@ class Client:
         # delete None results
         new_results = [i for i in results if i != None]
 
-        self.handle_response(new_results)
+        new_results = self.handle_response(new_results)
+
+        return new_results
 
     def handle_response(self, response : List):
         """
@@ -137,9 +135,6 @@ class Client:
         results[index] = resp
 
         socket.close()
-
-
-
 
 
 # # self.request.send_multipart([b'',b'request'])

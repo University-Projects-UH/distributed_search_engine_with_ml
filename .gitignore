@@ -1,7 +1,8 @@
 /env
 
+.gitignore
 __pycache__
-
+distributed/.directory
 docs
 
 testing.py

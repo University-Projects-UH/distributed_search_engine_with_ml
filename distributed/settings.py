@@ -12,3 +12,8 @@ DEBUG_MODE = True
 WAIT_TIME_FOR_REQUEST = 5
 
 AMOUNT_DOCS_IN_RESPONSE = 20
+
+ORIGINS_API_CLIENT = [
+    "http://localhost",
+    "http://localhost:8080",
+]
