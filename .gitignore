@@ -7,3 +7,5 @@ docs
 testing.py
 
 glove6B/
+
+node_modules/
