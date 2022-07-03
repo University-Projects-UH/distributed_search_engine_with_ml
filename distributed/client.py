@@ -1,3 +1,4 @@
+from audioop import reverse
 from ipaddress import ip_address
 import time
 import zmq
@@ -122,7 +123,8 @@ class Client:
     def handle_response(self, response : List, ip_address : List):
         """
         Given a List servers' results
-        Return a list with results merged
+        Return a list with most important documents 
+        result of merge
         """
 
         results = []
@@ -131,9 +133,27 @@ class Client:
                 doc['ip'] = ip_address[i]
                 results.append(doc)
 
-        results = results[:settings.AMOUNT_DOCS_IN_RESPONSE]
+        results.sort(key=lambda dic: dic['ranking'],reverse=True)
 
-        return results
+        hash_map = {}
+
+        final_results = []
+        for i in results:
+            #calculate hash to document's text
+            h = hash(i['text'])
+
+            # if hash no exist actually is a new document
+            if hash_map.get(h) is None:
+                hash_map[h] = True
+
+                final_results.append(i)
+
+                if len(hash_map) == settings.AMOUNT_DOCS_IN_RESPONSE:
+                    break
+
+        # results = results[:settings.AMOUNT_DOCS_IN_RESPONSE]
+
+        return final_results
 
     def communicate_server(self, server, query, results, index):
         """
@@ -165,8 +185,7 @@ class Client:
         query = str(self.docs_save[id]['id'])
         query = 'query2:' + query
         ip_server = self.docs_save[id]['ip']
-
-        
+ 
         thread = Thread(target=self.communicate_server, args = (ip_server, query, doc, 0))
         thread.start()
 

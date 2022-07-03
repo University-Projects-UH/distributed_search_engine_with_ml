@@ -5,18 +5,18 @@ version: "3.9"
 # docker build -t distributed .
 
 services:
-  client:
-    image: distributed
-    container_name: client1
-    volumes:
-      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
-    command: python3 run_client.py
-    # links:
-    #   - server1
-    #   - server2
-    networks:
-      dis:
-        ipv4_address: 10.5.0.2
+  # client:
+  #   image: distributed
+  #   container_name: client1
+  #   volumes:
+  #     - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
+  #   command: python3 run_client.py
+  #   # links:
+  #   #   - server1
+  #   #   - server2
+  #   networks:
+  #     dis:
+  #       ipv4_address: 10.5.0.2
 
   # client2:
   #   image: distributed

@@ -115,17 +115,11 @@ class VectorialModel:
         wordi_ranking = sorted(wordi_ranking, reverse=True)
         return [words_pair[1] for words_pair in wordi_ranking][:min(count, len(wordi_ranking))]
 
-
     # The first n documents of the ranking are considered relevants
     def query(self, text: str):
 
         query_doc = Doc(text)
-<<<<<<< HEAD
-        print(query_doc.terms)
-        #query_doc.add_terms(self.get_query_expansion(query_doc))
-=======
-        query_doc.add_terms(self.get_query_expansion(query_doc))
->>>>>>> b6d35696c94dc686f19a6a96e25ccfae9f164679
+        # query_doc.add_terms(self.get_query_expansion(query_doc))
         query_doc.calculate_wi(self.idf)
 
         ranking = []
