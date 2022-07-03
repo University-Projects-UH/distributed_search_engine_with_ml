@@ -1,9 +1,8 @@
 version: "3.9"
 
 # TO-DO erase volumes
-# docker run -it --network dis -v /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed distributed sh
+# docker run -it --network dis -v /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app distributed sh
 # docker build -t distributed .
-
 
 services:
   client:

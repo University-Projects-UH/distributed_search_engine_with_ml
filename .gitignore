@@ -9,3 +9,6 @@ docs
 testing.py
 
 glove6B/
+
+
+dist/

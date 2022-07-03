@@ -1,4 +1,4 @@
-from hashlib import new
+from ipaddress import ip_address
 import time
 import zmq
 from threading import Thread
@@ -14,6 +14,8 @@ class Client:
         # Server actually listens
         self.active_servers = {}
         self.address = give_ip()
+
+        self.docs_save = None
 
         self.ctx = None
         # self.request = None
@@ -55,6 +57,7 @@ class Client:
                 udp.send(b'!')
                 ping_at = time.time() + settings.PING_INTERVAL
 
+    # Check if some server was disconnected
     def check_servers(self):
         list_servers = []
         for server,last_time in self.active_servers.items():
@@ -64,6 +67,7 @@ class Client:
         for server in list_servers:
             self.active_servers.pop(server)
 
+    # Recive query and return docs results from the query
     def send_request(self, query = 'CUBA'):
         self.check_servers()
 
@@ -71,12 +75,16 @@ class Client:
 
         thread = [None] * count_servers
         results = [None] * count_servers
+        # save server ip
+        ip_server = [None] * count_servers
 
         # server communication within threading
         idx = 0
         for server in self.active_servers:
-            thread[idx] = Thread(target=self.communicate_server, args = (server, query, results, idx))
+            thread[idx] = Thread(target=self.communicate_server, args = (server, 'query1:' + query, results, idx))
             thread[idx].start()
+            
+            ip_server[idx] = server
 
             idx += 1
 
@@ -90,27 +98,42 @@ class Client:
         # TO-DO: kill bugs process
 
         if( not any(x != None for x in results)):
-            print("No one server is available")
+            if(settings.DEBUG_MODE):
+                print("No one server is available")
             return None
 
         # delete None results
-        new_results = [i for i in results if i != None]
+        new_results = [results[i] for i in range(len(results)) if results[i] != None]
+        news_ip_address  = [ip_server[i] for i in range(len(results)) if results[i] != None]
 
-        new_results = self.handle_response(new_results)
+        self.docs_save = self.handle_response(new_results,news_ip_address)
 
-        return new_results
+        # create a new copy of docs for response
+        docs_copy = []
+        for i in range(len(self.docs_save)):
+            docs_copy.append({
+                'text' : self.docs_save[i]['text'],
+                'ranking' : self.docs_save[i]['ranking'],
+                'id' : i
+            })
 
-    def handle_response(self, response : List):
+        return docs_copy
+
+    def handle_response(self, response : List, ip_address : List):
         """
         Given a List servers' results
         Return a list with results merged
         """
 
         results = []
-        for i in response:
-            results.extend(i)
+        for i in range(len(response)):
+            for doc in response[i]:
+                doc['ip'] = ip_address[i]
+                results.append(doc)
 
-        return results[:settings.AMOUNT_DOCS_IN_RESPONSE]
+        results = results[:settings.AMOUNT_DOCS_IN_RESPONSE]
+
+        return results
 
     def communicate_server(self, server, query, results, index):
         """
@@ -136,9 +159,33 @@ class Client:
 
         socket.close()
 
+    def query_docs(self, id : int):
+        doc = [None]
+        # print(self.docs_save)
+        query = str(self.docs_save[id]['id'])
+        query = 'query2:' + query
+        ip_server = self.docs_save[id]['ip']
+
+        
+        thread = Thread(target=self.communicate_server, args = (ip_server, query, doc, 0))
+        thread.start()
+
+        # wait response from servers
+        time.sleep(settings.WAIT_TIME_FOR_REQUEST)
+
+        # TO-DO: kill bugs process
+
+        if doc[0] is None:
+            if(settings.DEBUG_MODE):
+                print("Document is not available now")
+            return None
+
+        return doc[0]
 
 # # self.request.send_multipart([b'',b'request'])
 # self.request.send(b'',flags=zmq.SNDMORE)
 # self.request.send(b'request %d' %cnt)
 
 # self.request.recv_multipart()
+#input.send(b'', flags = zmq.SNDMORE)
+#input.send(b'OK')
