@@ -35,7 +35,7 @@ services:
     image: distributed
     container_name: server1
     volumes:
-      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
+      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
     command: python3 run_server.py --collection docs-lisa
     networks:
       dis:
@@ -45,8 +45,8 @@ services:
     image: distributed
     container_name: server2
     volumes:
-      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
-    command: python3 run_server.py --collection docs-lisa
+      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
+    command: python3 run_server.py --collection npl
     networks:
       dis:
         ipv4_address: 10.5.0.12
