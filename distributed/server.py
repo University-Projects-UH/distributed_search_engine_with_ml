@@ -57,13 +57,28 @@ class Server:
                 udp.handle.sendto(b's',address)
             # client-server communication
             elif events.get(input) == zmq.POLLIN:
-                recive = input.recv_multipart()
+                recive = input.recv().decode('utf-8')
 
-                docs = self.query_docs(recive)
+                response = self.handle_request(recive)
 
-                input.send_pyobj(docs)
+                input.send_pyobj(response)
 
-                #input.send(b'', flags = zmq.SNDMORE)
-                #input.send(b'OK')
                 if(settings.DEBUG_MODE):
                     print("Recieved message: \"%s\" by port: %d" % (recive, settings.CLI_SERV_PORT_NUMBER) )
+
+    def handle_request(self, request):
+        # request for docs match with a query
+
+        if 'query1:' in request:
+            request = request.replace('query1:', '', 1)
+
+            # return docs
+            return self.query_docs(request)
+        if 'query2:' in request:
+            request = request.replace('query2:', '', 1)
+
+            id = int(request)
+
+            # return doc
+            return {"text" : self.vm.docs[id].text}
+        

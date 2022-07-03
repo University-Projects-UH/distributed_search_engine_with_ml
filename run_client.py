@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from threading import Thread
-
 import uvicorn
+import sys
+
 from distributed.client import Client
 import distributed.settings as settings
 
@@ -24,18 +25,16 @@ def query_docs(value: str = ""):
 
 @app_client.get("/document/{doc_id}")
 def read_document(doc_id: int):
-    pass
-
+    return client.query_docs(doc_id)
 
 client_thread = Thread(target=client.start,daemon=True)
 client_thread.start()
 
-
 if __name__ == "__main__":
-    uvicorn.run("run_client:app_client", reload=True)
+    try:
+        uvicorn.run("run_client:app_client", reload=True)
+    except KeyboardInterrupt:
+        sys.exit()
 
-
-
-
-
-#curl http://127.0.0.1:8000/query?value=cuba
+# curl http://127.0.0.1:8000/query?value=cuba
+# curl http://127.0.0.1:8000/document/1

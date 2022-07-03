@@ -7,13 +7,13 @@ PING_INTERVAL    = 1  # Once per second
 
 CLI_SERV_PORT_NUMBER = 2526
 
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 WAIT_TIME_FOR_REQUEST = 5
 
 AMOUNT_DOCS_IN_RESPONSE = 20
 
 ORIGINS_API_CLIENT = [
-    "http://localhost",
-    "http://localhost:8080",
+    # "http://localhost",
+    "http://localhost:8000",
 ]
