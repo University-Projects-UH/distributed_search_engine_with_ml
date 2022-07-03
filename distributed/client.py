@@ -1,4 +1,4 @@
-from audioop import reverse
+from audioop import add, reverse
 from ipaddress import ip_address
 import time
 import zmq
@@ -11,10 +11,10 @@ from distributed.utils.udplib import UDP
 
 class Client:
 
-    def __init__(self):
+    def __init__(self, address):
         # Server actually listens
         self.active_servers = {}
-        self.address = give_ip()
+        self.address = address
 
         self.docs_save = None
 

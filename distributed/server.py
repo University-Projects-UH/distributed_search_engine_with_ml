@@ -1,5 +1,3 @@
-import signal
-from sys import flags
 import zmq
 
 import distributed.settings as settings
@@ -11,10 +9,10 @@ from ir_model.file_tools import DocsCollection
 
 class Server:
 
-    def __init__(self, document_set : str):
+    def __init__(self, address, document_set : str):
         self.dc = DocsCollection(document_set)
         self.vm = VectorialModel(self.dc.docs)
-        self.address = give_ip()
+        self.address = address
 
     def query_docs(self, value: str = ""):
         documents = self.vm.query(value)
@@ -51,10 +49,14 @@ class Server:
             
             # ping response
             if udp.handle.fileno() in events:
-                rec,address = udp.recv(settings.PING_MSG_SIZE)
-                if(settings.DEBUG_MODE):
-                    print("Server %s Received ping message: %s"  % (self.address, rec))
-                udp.handle.sendto(b's',address)
+                rec,address_port = udp.recv(settings.PING_MSG_SIZE)
+                if address_port[0] == self.address and rec == 's':
+                    pass
+                else:
+                    if(settings.DEBUG_MODE):
+                        print("Server %s Received ping message: %s"  % (self.address, rec))
+                    udp.handle.sendto(b's',address_port)
+
             # client-server communication
             elif events.get(input) == zmq.POLLIN:
                 recive = input.recv().decode('utf-8')
