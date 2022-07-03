@@ -9,7 +9,7 @@ services:
     container_name: client1
     volumes:
       - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
-    command: python3 distributed/run_client.py
+    command: python run_client.py 
     # links:
     #   - server1
     #   - server2
@@ -22,7 +22,7 @@ services:
   #   container_name: client2
   #   volumes:
   #     - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
-  #   command: python3 distributed/client.py
+  #   command: python3 client.py
   #   # links:
   #   #   - server1
   #   #   - server2
@@ -35,7 +35,7 @@ services:
     container_name: server1
     volumes:
       - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
-    command: python3 distributed/run_server.py
+    command: python3 run_server.py --collection docs-lisa
     networks:
       dis:
         ipv4_address: 10.5.0.11
@@ -45,7 +45,7 @@ services:
     container_name: server2
     volumes:
       - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
-    command: python3 distributed/run_server.py
+    command: python3 run_server.py --collection docs-lisa
     networks:
       dis:
         ipv4_address: 10.5.0.12
