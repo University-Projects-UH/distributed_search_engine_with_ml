@@ -13,15 +13,17 @@ class Doc:
 
 
     def add_terms(self, new_terms):
+        if(len(new_terms) == 0):
+            return
         self.terms.extend(new_terms)
         self.build_freq()
         self.calculate_tfi()
 
-    
+
     def __lt__(self, other):
         return len(self.terms) < len(other.terms)
 
-    
+
     def build_freq(self):
         self.freq = Vector()
         for term in self.terms:
@@ -30,15 +32,15 @@ class Doc:
             except:
                 self.freq[term] = 1
 
-    
+
     def calculate_tfi(self):
         self.tfi = Vector()
         max_freq = max(self.freq.values())
 
         for term in self.freq:
             self.tfi[term] = self.freq.vector[term] / max_freq
-    
-    
+
+
     def calculate_wi(self, idf, is_query = False):
         self.wi = Vector()
 
@@ -49,6 +51,6 @@ class Doc:
                 self.wi[term] =  (A + ((1 - A) * self.tfi.vector[term])) * idf.vector[term]
             else:
                 self.wi[term] = self.tfi.vector[term] * idf.vector[term]
-        
+
         self.wi.calculate_norm()
 

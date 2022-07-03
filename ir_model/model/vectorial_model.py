@@ -9,7 +9,7 @@ import numpy as np
 class VectorialModel:
     RELEVANT_PERCENTAGE = 0.12
     EPS = 1e-6
-    
+
     def __init__(self, docs_text: 'list[str]'):
         self.term_universe = Vector()
         self.docs = []
@@ -26,7 +26,7 @@ class VectorialModel:
         self.calculate_idf()
         self.calculate_weight_of_docs()
 
-    
+
     # idf = log( N / ni ) where:
     # N -> total documents
     # ni -> total documents where the term ti appears
@@ -68,7 +68,7 @@ class VectorialModel:
             freq = 1
 
         return math.log(len(self.docs) / freq, 10)
-    
+
 
     # IDF-AWE(q) = ( 1 / sum (IDF(wordi) ) ) * sum( IDF(wordi) * wordi_vector )
     # wordi is the word embedding of qi term of the query
@@ -85,7 +85,7 @@ class VectorialModel:
 
         return AWE_vector * ( 1 / sum_IDF )
 
-    
+
     def closet_term(self, idf_awe, word_embedding):
         return np.exp(spatial.distance.cosine(word_embedding, idf_awe))
 
@@ -98,9 +98,12 @@ class VectorialModel:
             similar_words = self.word_embeddings.find_similar_word_kdtree(term, count)
             if(len(similar_words) == 0):
                 continue
-            
+
             for w in similar_words:
                 wordi_array.append([w, term])
+
+        if(len(wordi_array) == 0):
+            return []
 
         idf_awe_vector = self.get_idf_awe(wordi_array)
         wordi_ranking = []
@@ -115,13 +118,16 @@ class VectorialModel:
 
     # The first n documents of the ranking are considered relevants
     def query(self, text: str):
-        
+
         query_doc = Doc(text)
+<<<<<<< HEAD
         print(query_doc.terms)
         #query_doc.add_terms(self.get_query_expansion(query_doc))
+=======
+        query_doc.add_terms(self.get_query_expansion(query_doc))
+>>>>>>> b6d35696c94dc686f19a6a96e25ccfae9f164679
         query_doc.calculate_wi(self.idf)
-        print(query_doc.terms)
-        
+
         ranking = []
         index = 0
         for doc in self.docs:
