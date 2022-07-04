@@ -5,51 +5,40 @@ version: "3.9"
 # docker build -t distributed .
 
 services:
-  # client:
-  #   image: distributed
-  #   container_name: client1
-  #   volumes:
-  #     - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
-  #   command: python3 run_client.py
-  #   # links:
-  #   #   - server1
-  #   #   - server2
-  #   networks:
-  #     dis:
-  #       ipv4_address: 10.5.0.2
-
-  # client2:
-  #   image: distributed
-  #   container_name: client2
-  #   volumes:
-  #     - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml/distributed/:/app/distributed
-  #   command: python3 client.py
-  #   # links:
-  #   #   - server1
-  #   #   - server2
-  #   networks:
-  #     dis:
-  #       ipv4_address: 10.5.0.3
+  client:
+    image: distributed
+    container_name: app1
+    volumes:
+      - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
+    command: bash script.sh 10.5.0.2 docs-lisa
+    # command: bash -c "
+    #   python3 run_server.py --ip 10.5.0.2 --collection lisa-docs &&
+    #   python3 run_client.py --ip 10.5.0.2 && 
+    #   python3 -m http.server --d dist/ 8001"
+    networks:
+      dis:
+        ipv4_address: 10.5.0.2
 
   server1:
     image: distributed
-    container_name: server1
+    container_name: app2
     volumes:
       - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
-    command: python3 run_server.py --collection docs-lisa
+    command: bash script.sh 10.5.0.3 npl
     networks:
       dis:
-        ipv4_address: 10.5.0.11
+        ipv4_address: 10.5.0.3
 
   server2:
     image: distributed
-    container_name: server2
+    container_name: app3
     volumes:
       - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
-    command: python3 run_server.py --collection npl
+    command: bash script.sh 10.5.0.4 npl
+      # python3 run_client.py --ip 10.5.0.4 && 
     networks:
       dis:
-        ipv4_address: 10.5.0.12
+        ipv4_address: 10.5.0.4
 
 
 networks:

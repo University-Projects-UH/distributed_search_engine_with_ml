@@ -31,32 +31,18 @@ class Client:
         poller = zmq.Poller()
         poller.register(udp.handle, zmq.POLLIN)
 
-        # Send first ping right away
-        ping_at = time.time()
-
         while True:
-            timeout = ping_at - time.time()
-            if timeout < 0:
-                timeout = 0
 
-            events = dict(poller.poll(1000* timeout))
+            events = dict(poller.poll())
 
             # Someone answered our ping
             if udp.handle.fileno() in events:
-                resp, addrinfo = udp.recv(settings.PING_MSG_SIZE)
-                if(resp == 's'):
-                    if(settings.DEBUG_MODE and self.active_servers.get(addrinfo[0]) == None):
-                        print("Found server %s:%d" % addrinfo)
+                rec,address_port = udp.recv(settings.PING_MSG_SIZE)
+                if rec == 's':
+                    self.active_servers[address_port[0]] = time.time()
+                    if(settings.DEBUG_MODE):
+                        print("Client %s Received ping message: %s"  % (self.address, rec))
 
-                    self.active_servers[addrinfo[0]] = time.time()
-
-            # Is time to send broadcast ping
-            if time.time() >= ping_at:
-                # Broadcast our beacon
-                if(settings.DEBUG_MODE):
-                    print ("Pinging peers...")
-                udp.send(b'!')
-                ping_at = time.time() + settings.PING_INTERVAL
 
     # Check if some server was disconnected
     def check_servers(self):
@@ -66,6 +52,8 @@ class Client:
                 list_servers.append(server)
 
         for server in list_servers:
+            if(settings.DEBUG_MODE == True):
+                print("Disconect server %s" % server)
             self.active_servers.pop(server)
 
     # Recive query and return docs results from the query
