@@ -42,7 +42,7 @@ client_thread.start()
 
 if __name__ == "__main__":
     try:
-        uvicorn.run("run_client:app_client", reload=True)
+        uvicorn.run("run_client:app_client", reload=True, port=8000)
     except KeyboardInterrupt:
         sys.exit()
 
