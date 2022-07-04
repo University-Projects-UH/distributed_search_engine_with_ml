@@ -1,6 +1,5 @@
-import signal
-from sys import flags
 import zmq
+import time
 
 import distributed.settings as settings
 from distributed.utils.udplib import UDP
@@ -11,10 +10,10 @@ from ir_model.file_tools import DocsCollection
 
 class Server:
 
-    def __init__(self, document_set : str):
+    def __init__(self, address, document_set : str):
         self.dc = DocsCollection(document_set)
         self.vm = VectorialModel(self.dc.docs)
-        self.address = give_ip()
+        self.address = address
 
     def query_docs(self, value: str = ""):
         documents = self.vm.query(value)
@@ -39,24 +38,25 @@ class Server:
         input.bind("tcp://%s:%d" % (self.address, settings.CLI_SERV_PORT_NUMBER))
 
         # ping port
-        udp = UDP(settings.PING_PORT_NUMBER,self.address)
+        udp = UDP(settings.PING_PORT_NUMBER)
 
         # poll sockets
         poller = zmq.Poller()
-        poller.register(udp.handle, zmq.POLLIN)
+        # poller.register(udp.handle, zmq.POLLIN)
         poller.register(input,zmq.POLLIN)
 
+        # Send first ping right away
+        ping_at = time.time()
+
         while True:
-            events = dict(poller.poll())
-            
-            # ping response
-            if udp.handle.fileno() in events:
-                rec,address = udp.recv(settings.PING_MSG_SIZE)
-                if(settings.DEBUG_MODE):
-                    print("Server %s Received ping message: %s"  % (self.address, rec))
-                udp.handle.sendto(b's',address)
+            timeout = ping_at - time.time()
+            if timeout < 0:
+                timeout = 0
+
+            events = dict(poller.poll(1000* timeout))
+                               
             # client-server communication
-            elif events.get(input) == zmq.POLLIN:
+            if events.get(input) == zmq.POLLIN:
                 recive = input.recv().decode('utf-8')
 
                 response = self.handle_request(recive)
@@ -65,6 +65,14 @@ class Server:
 
                 if(settings.DEBUG_MODE):
                     print("Recieved message: \"%s\" by port: %d" % (recive, settings.CLI_SERV_PORT_NUMBER) )
+
+            # Is time to send broadcast ping
+            if time.time() >= ping_at:
+                # Broadcast our beacon
+                if(settings.DEBUG_MODE):
+                    print ("Pinging peers...")
+                udp.send(b's')
+                ping_at = time.time() + settings.PING_INTERVAL
 
     def handle_request(self, request):
         # request for docs match with a query

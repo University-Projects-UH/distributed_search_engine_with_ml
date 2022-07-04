@@ -3,13 +3,23 @@ from fastapi.middleware.cors import CORSMiddleware
 from threading import Thread
 import uvicorn
 import sys
+from argparse import ArgumentParser
 
 from distributed.client import Client
 import distributed.settings as settings
 
+parser = ArgumentParser()
+
+parser.add_argument(
+    '--ip', type=str, required=True,
+    help='IP address'
+)
+
+args = parser.parse_args()
+
 app_client = FastAPI()
 
-client = Client()
+client = Client(args.ip)
 
 app_client.add_middleware(
     CORSMiddleware,
