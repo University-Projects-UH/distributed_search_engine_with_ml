@@ -2,7 +2,7 @@ from scipy import spatial
 from .doc import Doc
 from .vector import Vector
 import math
-from .word_embeddings import WordEmbeddings
+from .word_embeddings import WordEmbeddings, CBOW
 import numpy as np
 
 
@@ -14,6 +14,7 @@ class VectorialModel:
         self.term_universe = Vector()
         self.docs = []
         self.word_embeddings = WordEmbeddings("./model/word_embeddings")
+
         for text in docs_text:
             doc = Doc(text)
             for term in doc.freq:
@@ -23,6 +24,7 @@ class VectorialModel:
                     self.term_universe[term] = 1
             self.docs.append(doc)
 
+        self.cbow = CBOW(self.docs, self.word_embeddings)
         self.calculate_idf()
         self.calculate_weight_of_docs()
 
