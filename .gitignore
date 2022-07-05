@@ -1,0 +1,6 @@
+env/
+glove6B/
+__pycache__/
+testing.py
+docs/
+node_modules/
