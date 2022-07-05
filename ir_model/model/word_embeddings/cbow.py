@@ -182,7 +182,7 @@ class CBOW:
         for i in range(self.n):
             EH.append(0)
             for j in range(self.v):
-                EH[i] += e[j] * self.w_[i][j]
+                EH[i] += e[j] * self.w_[i][j] * self.LEARNING_RATE
 
         # next we calculate the derivate of E with regard w
         dw = self.multiply(self.transpose([input_v]), [EH])
