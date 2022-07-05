@@ -1,0 +1,53 @@
+version: "3.9"
+
+# docker build -t distributed .
+# docker run -it --network dis -v /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app distributed sh
+
+services:
+  client:
+    image: distributed
+    container_name: app1
+    ports:
+      - 127.0.0.1:8001:8001
+    # volumes:
+    #   - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
+    command: bash script.sh 10.5.0.2 docs-lisa
+    networks:
+      dis:
+        ipv4_address: 10.5.0.2
+
+  server1:
+    image: distributed
+    container_name: app2
+    ports:
+      - 127.0.0.1:8002:8001
+    # volumes:
+    #   - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
+    command: bash script.sh 10.5.0.3 npl
+    networks:
+      dis:
+        ipv4_address: 10.5.0.3
+
+  server2:
+    image: distributed
+    container_name: app3
+    ports:
+      - 127.0.0.1:8003:8001
+      - 127.0.0.1:8000:8000
+    # volumes:
+    #   - /home/alurquiza/Alben/1-carrera/4to/SD/Proyecto/distributed_search_engine_with_ml:/app
+    command: bash script.sh 10.5.0.4 npl
+    networks:
+      dis:
+        ipv4_address: 10.5.0.4
+
+
+networks:
+  dis:
+    name: dis
+    driver: bridge
+    enable_ipv6: false
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.5.0.0/16

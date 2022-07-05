@@ -1,0 +1,8 @@
+**/docker-compose.yml
+**/Dockerfile
+
+**/__pycache__
+**/.vscode
+**/env
+
+**/.directory

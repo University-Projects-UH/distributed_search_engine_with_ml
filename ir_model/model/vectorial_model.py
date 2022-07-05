@@ -13,8 +13,8 @@ class VectorialModel:
     def __init__(self, docs_text: 'list[str]'):
         self.term_universe = Vector()
         self.docs = []
-        self.word_embeddings = WordEmbeddings("./model/word_embeddings")
 
+        self.word_embeddings = WordEmbeddings("./model/word_embeddings")
         for text in docs_text:
             doc = Doc(text)
             for term in doc.freq:
@@ -118,12 +118,11 @@ class VectorialModel:
         wordi_ranking = sorted(wordi_ranking, reverse=True)
         return [words_pair[1] for words_pair in wordi_ranking][:min(count, len(wordi_ranking))]
 
-
     # The first n documents of the ranking are considered relevants
     def query(self, text: str):
 
         query_doc = Doc(text)
-        query_doc.add_terms(self.get_query_expansion(query_doc))
+        # query_doc.add_terms(self.get_query_expansion(query_doc))
         query_doc.calculate_wi(self.idf)
 
         ranking = []
