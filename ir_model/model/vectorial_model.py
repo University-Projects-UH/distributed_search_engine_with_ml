@@ -24,7 +24,8 @@ class VectorialModel:
                     self.term_universe[term] = 1
             self.docs.append(doc)
 
-        self.cbow = CBOW(self.docs, self.word_embeddings)
+        self.cbow = CBOW([doc.terms for doc in self.docs], self.word_embeddings)
+        self.cbow.train_model()
         self.calculate_idf()
         self.calculate_weight_of_docs()
 

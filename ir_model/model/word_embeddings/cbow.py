@@ -5,7 +5,7 @@ class CBOW:
 
     LEARNING_RATE = 0.1
 
-    def __init__(self, docs_tokens, word_embeddings):
+    def __init__(self, docs_tokens: 'list[list]', word_embeddings):
         self.vocabulary = {}
         self.vocabulary_ind = {}
         self.inv_vocabulary = []
@@ -51,25 +51,27 @@ class CBOW:
             return None
 
 
-    def get_encoded_vector(self, word):
-        ind = self.get_word_index(word)
-        if(ind is None):
-            return None
+    def get_encoded_vector(self, words_list):
+        result_v = [0] * self.v
+        for word in words_list:
+            ind = self.get_word_index(word)
+            if(ind is None):
+                return None
 
-        v = [0] * self.v
-        v[ind] = 1
-        return v
+            result_v[ind] = 1
+
+        return result_v
 
 
     # train model with the docs
-    def train_model(self, window = 4, iterations = 1000):
-        mid: int = (window + 1) // 2
+    def train_model(self, window = 5, iterations = 10):
+        mid: int = (window) // 2
 
         training_data = []
         for doc_tokens in self.docs_tokens:
             doc_tokens_len = len(doc_tokens)
             for i in range(window, doc_tokens_len):
-                context: list = doc_tokens[i - window :i + 1]
+                context: list = doc_tokens[i - window :i]
                 target = context[mid]
                 context.pop(mid)
 
@@ -77,27 +79,31 @@ class CBOW:
 
         while(iterations > 0):
             for context, target in training_data:
-                self.train(context[0], target)
+                self.train(context, target)
 
             iterations -= 1
 
 
-    def train(self, word_input, word_target):
-        input_v = self.get_encoded_vector(word_input)
+
+    def train(self, words_list, word_target):
+        input_v = self.get_encoded_vector(words_list)
         target_index = self.get_word_index(word_target)
+
         if(input_v is None or target_index is None):
             return
 
-        h, y = self.forward(input_v)
-        self.back_propagation(input_v, y, h, target_index)
+        context_len = sum(input_v)
+        h, y = self.forward(input_v, context_len)
+        self.back_propagation(input_v, y, h, target_index, context_len)
 
 
-    def predict(self, context: str):
+    def predict(self, context: 'list[str]'):
         input_v = self.get_encoded_vector(context)
         if(input_v is None):
             return None
 
-        _, y  = self.forward(input_v)
+        context_len = sum(input_v)
+        _, y  = self.forward(input_v, context_len)
         max_i = 0
         for i in range(1, self.v):
             if(y[i] > y[max_i]):
@@ -155,9 +161,19 @@ class CBOW:
         return e
 
 
-    def forward(self, input_v: list):
+    def forward(self, input_v: list, context_len: int):
         # input layer -> hidden layer
-        h = self.multiply([input_v], self.w)
+        # h = self.multiply([input_v], self.w)
+        # avoid matrix multiplication for improve performance
+        h = [[0] * self.n]
+        for i in range(self.v):
+            if(input_v[i] == 0):
+                continue
+            for j in range(self.n):
+                h[0][j] += self.w[i][j]
+
+        h = [[value / context_len for value in h[0]]]
+
         # hidden layer -> output layer
         u = self.multiply(h, self.w_)
         # sigma activation function
@@ -165,7 +181,8 @@ class CBOW:
         return h, y
 
 
-    def back_propagation(self, input_v, y, h, target_index):
+    def back_propagation(self, input_v, y, h, target_index, context_len):
+
         # error prediction
         e = self.calculate_e(y, target_index)
         # next we calculate the derivate of E with regard w_
@@ -182,11 +199,10 @@ class CBOW:
         for i in range(self.n):
             EH.append(0)
             for j in range(self.v):
-                EH[i] += e[j] * self.w_[i][j] * self.LEARNING_RATE
+                EH[i] += e[j] * self.w_[i][j]
 
         # next we calculate the derivate of E with regard w
         dw = self.multiply(self.transpose([input_v]), [EH])
-
 
         # update w_ (weights of hidden layer to output layer)
         for i in range(self.n):
@@ -196,6 +212,4 @@ class CBOW:
         # update w (weights of input layer to hidden layer)
         for i in range(self.v):
             for j in range(self.n):
-                self.w[i][j] -= dw[i][j]
-
-
+                self.w[i][j] -= self.LEARNING_RATE * ( dw[i][j] / context_len)
