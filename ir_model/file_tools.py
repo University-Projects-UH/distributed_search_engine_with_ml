@@ -15,16 +15,29 @@ class FileTools:
         f = open(path, "rb")
         return str(f.read().decode("UTF-8", "ignore"))
 
+
 class DocsCollection:
     def __init__(self, name: str):
         self.docs = []
+        self.docs_by_label = {}
 
         ft = FileTools(f'./docs/{name}')
         files_array = ft.get_files()
 
-        for file in files_array:
-            self.docs.append(ft.read_file(file))
+        for file_path in files_array:
+            label = self.get_label(file_path)
+            content = ft.read_file(file_path)
+            self.docs.append((content, label))
+            try:
+                self.docs_by_label[label].append(content)
+            except:
+                self.docs_by_label[label] = [content]
+
+
+    def get_label(self, path):
+        path_splitted = path.split("/")
+        return path_splitted[-2]
 
 
     def __getitem__(self, key):
-        return self.docs[key]
+        return self.docs[key][0]
