@@ -3,6 +3,7 @@ from .doc import Doc
 from .vector import Vector
 import math
 from .word_embeddings import WordEmbeddings, CBOW
+from .classifier import Classifier
 import numpy as np
 
 
@@ -10,22 +11,28 @@ class VectorialModel:
     RELEVANT_PERCENTAGE = 0.12
     EPS = 1e-6
 
-    def __init__(self, docs_text: 'list[str]'):
+    def __init__(self, docs_text_labeled):
         self.term_universe = Vector()
         self.docs = []
+        self.docs_by_label = {}
 
         self.word_embeddings = WordEmbeddings("./model/word_embeddings")
-        for text in docs_text:
-            doc = Doc(text)
+        for text, label in docs_text_labeled:
+            doc = Doc(text, label)
             for term in doc.freq:
                 try:
                     self.term_universe[term] += 1
                 except:
                     self.term_universe[term] = 1
             self.docs.append(doc)
+            try:
+                self.docs_by_label[label].append(doc)
+            except:
+                self.docs_by_label[label] = [doc]
 
-        self.cbow = CBOW([doc.terms for doc in self.docs], self.word_embeddings)
-        self.cbow.train_model()
+        self.classifier_model = Classifier(self.docs)
+        # self.cbow = CBOW([doc.terms for doc in self.docs], self.word_embeddings)
+        # self.cbow.train_model()
         self.calculate_idf()
         self.calculate_weight_of_docs()
 
@@ -121,13 +128,14 @@ class VectorialModel:
     # The first n documents of the ranking are considered relevants
     def query(self, text: str):
 
-        query_doc = Doc(text)
-        # query_doc.add_terms(self.get_query_expansion(query_doc))
+        query_doc = Doc(text, None)
+        query_doc.add_terms(self.get_query_expansion(query_doc))
         query_doc.calculate_wi(self.idf)
+        query_label = self.classifier_model.predict(query_doc)
 
         ranking = []
         index = 0
-        for doc in self.docs:
+        for doc in self.docs_by_label[query_label]:
             rank = self.correlation(doc.wi, query_doc.wi)
             if(rank > self.RELEVANT_PERCENTAGE):
                 ranking.append([rank, doc, index])

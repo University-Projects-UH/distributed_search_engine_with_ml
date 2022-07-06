@@ -4,8 +4,9 @@ from .vector import Vector
 A = 0.4
 
 class Doc:
-    def __init__(self, text: str):
+    def __init__(self, text: str, label):
         tpt = TextPreprocessingTools()
+        self.label = label
         self.text = text
         self.terms = tpt.run_pipeline(text).split(" ")
         self.build_freq()

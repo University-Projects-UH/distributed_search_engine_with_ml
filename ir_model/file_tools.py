@@ -19,7 +19,6 @@ class FileTools:
 class DocsCollection:
     def __init__(self, name: str):
         self.docs = []
-        self.docs_by_label = {}
 
         ft = FileTools(f'./docs/{name}')
         files_array = ft.get_files()
@@ -28,10 +27,6 @@ class DocsCollection:
             label = self.get_label(file_path)
             content = ft.read_file(file_path)
             self.docs.append((content, label))
-            try:
-                self.docs_by_label[label].append(content)
-            except:
-                self.docs_by_label[label] = [content]
 
 
     def get_label(self, path):
